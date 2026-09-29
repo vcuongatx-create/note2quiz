@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Note2Quiz - Biến tài liệu thành bài kiểm tra</title>
+<link rel="stylesheet" href="style.css" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📚</text></svg>">
+</head>
+<body>
+
+<header>
+  <div class="logo">📚 Note2Quiz</div>
+  <nav>
+    <button class="nav-btn active" data-tab="generate">Tạo đề</button>
+    <button class="nav-btn" data-tab="quiz">Làm bài</button>
+    <button class="nav-btn" data-tab="chat">Tra kiến thức</button>
+    <button class="nav-btn" data-tab="settings">⚙️ API</button>
+  </nav>
+</header>
+
+<main>
+
+  <!-- ========== TAB 1: GENERATE ========== -->
+  <section id="tab-generate" class="tab active">
+    <div class="card">
+      <h2>📥 Nhập kiến thức</h2>
+      <p class="hint">Chọn 1 trong 3 cách: upload file, dán text, hoặc nhập chủ đề muốn tra.</p>
+
+      <div class="input-grid">
+        <div class="input-box">
+          <h3>1. Upload file</h3>
+          <input type="file" id="fileInput" accept=".pdf,.txt,.md,.docx,.png,.jpg,.jpeg" multiple />
+          <small>Hỗ trợ: PDF, TXT, DOCX, ảnh (PNG/JPG)</small>
+        </div>
+
+        <div class="input-box">
+          <h3>2. Dán văn bản</h3>
+          <textarea id="pasteInput" placeholder="Dán nội dung bài học vào đây..."></textarea>
+        </div>
+
+        <div class="input-box">
+          <h3>3. Nhập chủ đề muốn tra</h3>
+          <input type="text" id="topicInput" placeholder="VD: Quang hợp ở thực vật, Định lý Pythagoras..." />
+          <small>AI sẽ tự tra kiến thức và tạo đề</small>
+        </div>
+      </div>
+
+      <div class="options">
+        <label>
+          Số câu trắc nghiệm:
+          <input type="number" id="numQuestions" value="10" min="3" max="30" />
+        </label>
+        <label>
+          Độ khó:
+          <select id="difficulty">
+            <option value="dễ">Dễ</option>
+            <option value="trung bình" selected>Trung bình</option>
+            <option value="khó">Khó</option>
+          </select>
+        </label>
+        <label>
+          Ngôn ngữ:
+          <select id="language">
+            <option value="Tiếng Việt" selected>Tiếng Việt</option>
+            <option value="English">English</option>
+          </select>
+        </label>
+      </div>
+
+      <button id="generateBtn" class="primary-btn">✨ Tạo đề ngay</button>
+      <div id="generateStatus" class="status"></div>
+    </div>
+  </section>
+
+  <!-- ========== TAB 2: QUIZ ========== -->
+  <section id="tab-quiz" class="tab">
+    <div id="quizEmpty" class="card empty">
+      <h2>📝 Chưa có đề nào</h2>
+      <p>Vào tab <b>Tạo đề</b> để sinh bài kiểm tra trước nhé!</p>
+    </div>
+
+    <div id="quizContainer" style="display:none">
+      <div class="card">
+        <div class="quiz-header">
+          <h2 id="quizTitle">Bài kiểm tra</h2>
+          <div class="progress">
+            <span id="progressText">0/0</span>
+            <div class="progress-bar"><div id="progressFill"></div></div>
+          </div>
+        </div>
+        <div id="questionsList"></div>
+        <div class="quiz-actions">
+          <button id="checkBtn" class="primary-btn">✅ Check đáp án</button>
+          <button id="retryBtn" class="secondary-btn" style="display:none">🔄 Làm lại</button>
+        </div>
+      </div>
+
+      <div id="resultCard" class="card" style="display:none">
+        <h2>📊 Kết quả & Phân tích</h2>
+        <div id="scoreDisplay" class="score"></div>
+        <div id="analysisBox"></div>
+        <div id="weakTopicsBox"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TAB 3: CHAT ========== -->
+  <section id="tab-chat" class="tab">
+    <div class="card chat-card">
+      <h2>💬 Tra kiến thức</h2>
+      <div id="chatMessages" class="chat-messages">
+        <div class="msg bot">Xin chào! Hỏi mình bất cứ điều gì về kiến thức bạn đang học nhé 📖</div>
+      </div>
+      <div class="chat-input-row">
+        <input type="text" id="chatInput" placeholder="VD: Giải thích định lý Pythagoras..." />
+        <button id="chatSendBtn" class="primary-btn">Gửi</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ========== TAB 4: SETTINGS ========== -->
+  <section id="tab-settings" class="tab">
+    <div class="card">
+      <h2>⚙️ Cấu hình API</h2>
+      <p class="hint">
+        Web này dùng <b>Google Gemini API</b> (miễn phí). Lấy key tại:
+        <a href="https://aistudio.google.com/app/apikey" target="_blank">https://aistudio.google.com/app/apikey</a>
+      </p>
+      <label>Gemini API Key:</label>
+      <input type="password" id="apiKeyInput" placeholder="AIza..." />
+      <button id="saveKeyBtn" class="primary-btn">💾 Lưu key</button>
+      <div id="keyStatus" class="status"></div>
+      <hr />
+      <h3>🔒 Bảo mật</h3>
+      <p class="hint">
+        Key chỉ lưu trong <b>localStorage</b> của trình duyệt bạn. Không gửi lên server nào khác ngoài Google.
+        Nếu chia sẻ web cho người khác, mỗi người tự nhập key riêng.
+      </p>
+    </div>
+  </section>
+
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.6.0/mammoth.browser.min.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
